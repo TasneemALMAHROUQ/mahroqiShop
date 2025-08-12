@@ -1,17 +1,19 @@
-
-
-
 const loginForm = document.getElementById('login-form');
 
 loginForm.addEventListener('submit', async (event) => {
-  event.preventDefault(); 
-
+  event.preventDefault();
 
   const email = loginForm.email.value.trim();
   const password = loginForm.password.value.trim();
 
+  console.log('Trying login with:', { email, password });
+
+  if (!email || !password) {
+    alert('Please enter email and password');
+    return;
+  }
+
   try {
-    
     const response = await fetch('http://localhost:5000/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -19,12 +21,11 @@ loginForm.addEventListener('submit', async (event) => {
     });
 
     const data = await response.json();
+    console.log('Response from server:', data);
 
     if (response.ok) {
-     
       localStorage.setItem('token', data.token);
       alert('Login successful!');
-      
       window.location.href = 'index.html';
     } else {
       alert(data.message || 'Login failed');

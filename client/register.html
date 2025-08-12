@@ -6,7 +6,6 @@
   <title>Register - MahroqiShop</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    
     body {
       font-family: Arial, sans-serif;
       background-color: #f7f7f7;
@@ -83,8 +82,8 @@
   <div class="register-container">
     <h2>Create an Account</h2>
     <form id="register-form">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" required minlength="3" />
+      <label for="name">name</label>
+      <input type="text" id="name" name="name" required minlength="3" />
 
       <label for="email">Email</label>
       <input type="email" id="email" name="email" required />
@@ -101,54 +100,62 @@
     </form>
     <p class="login-link">Already have an account? <a href="login.html">Login here</a></p>
   </div>
+<script>
+  const form = document.getElementById('register-form');
+  const errorMsg = document.getElementById('error-msg');
+  const successMsg = document.getElementById('success-msg');
 
-  <script>
-    const form = document.getElementById('register-form');
-    const errorMsg = document.getElementById('error-msg');
-    const successMsg = document.getElementById('success-msg');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorMsg.style.display = 'none';
-      successMsg.style.display = 'none';
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
 
-      const username = form.username.value.trim();
-      const email = form.email.value.trim();
-      const password = form.password.value;
-      const confirmPassword = form['confirm-password'].value;
+    if (!nameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
+      errorMsg.textContent = "Some input elements are missing!";
+      errorMsg.style.display = 'block';
+      return;
+    }
 
-    
-      if(password !== confirmPassword) {
-        errorMsg.textContent = "Passwords do not match.";
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    if (password !== confirmPassword) {
+      errorMsg.textContent = "Passwords do not match.";
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    const userData = { name, email, password };
+
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+
+      if (res.ok) {
+        successMsg.textContent = "Registration successful! You can now login.";
+        successMsg.style.display = 'block';
+        form.reset();
+      } else {
+        const data = await res.json();
+        errorMsg.textContent = data.message || "Registration failed.";
         errorMsg.style.display = 'block';
-        return;
       }
+    } catch (error) {
+      errorMsg.textContent = "Error connecting to server.";
+      errorMsg.style.display = 'block';
+    }
+  });
+</script>
 
-      
-      const userData = { username, email, password };
-
-      try {
-        
-        const res = await fetch('http://localhost:5000/api/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(userData),
-        });
-
-        if(res.ok) {
-          successMsg.textContent = "Registration successful! You can now login.";
-          successMsg.style.display = 'block';
-          form.reset();
-        } else {
-          const data = await res.json();
-          errorMsg.textContent = data.message || "Registration failed.";
-          errorMsg.style.display = 'block';
-        }
-      } catch (error) {
-        errorMsg.textContent = "Error connecting to server.";
-        errorMsg.style.display = 'block';
-      }
-    });
-  </script>
 </body>
 </html>
